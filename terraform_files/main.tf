@@ -1,4 +1,4 @@
-# SERVER1: 'MASTER-SERVER' (with Jenkins, Maven, Docker, Ansible, Trivy)
+# SERVER1: 'JENKINS-SERVER' (with Java, Jenkins, Maven, Docker, Ansible, Trivy)
 # STEP1: CREATING A SECURITY GROUP FOR JENKINS SERVER
 # Description: Allow SSH, HTTP, HTTPS, 8080, 8081
 resource "aws_security_group" "my_security_group1" {
@@ -54,8 +54,8 @@ resource "aws_security_group" "my_security_group1" {
 # Note: i. First create a pem-key manually from the AWS console
 #      ii. Copy it in the same directory as your terraform code
 resource "aws_instance" "my_ec2_instance1" {
-  ami                    = "ami-0cf10cdf9fcd62d37"
-  instance_type          = "t2.medium"
+  ami                    = "ami-00fa360e28f425da0"
+  instance_type          = "t3.small"
   vpc_security_group_ids = [aws_security_group.my_security_group1.id]
   key_name               = "My_Key" # paste your key-name here, do not use extension '.pem'
 
@@ -66,18 +66,8 @@ resource "aws_instance" "my_ec2_instance1" {
   }
 
   tags = {
-    Name = "MASTER-SERVER"
+    Name = "JENKINS-SERVER"
   }
-
-  user_data = <<-EOF
-    #!/bin/bash
-    # wait for 1min before EC2 initialization
-    sleep 60
-    sudo wget https://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo
-    sudo sed -i s/\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo
-    sudo yum install -y apache-maven
-    sudo yum install java-1.8.0-devel -y
-  EOF
 
   # STEP3: USING REMOTE-EXEC PROVISIONER TO INSTALL TOOLS
   provisioner "remote-exec" {
@@ -89,7 +79,15 @@ resource "aws_instance" "my_ec2_instance1" {
       host        = self.public_ip
     }
 
-    inline = [        
+    inline = [
+      # wait for 2min before EC2 initialization
+      "sleep 120",
+      # install java21 for jenkins compatibility
+      "sudo yum install java-21-amazon-corretto -y",
+
+      # install maven for code build 
+      "sudo yum install maven -y",
+
       # wait for 200sec before EC2 initialization
       "sleep 200",
       # Install Git 
