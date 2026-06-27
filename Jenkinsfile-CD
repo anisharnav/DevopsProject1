@@ -6,9 +6,9 @@ pipeline {
     agent any
     // DECLARE THE VARIABLES HERE:
     environment {
-    NODE_IP = '<Node_Server_Private_IP>'   // paste your Node-Server private IP here
-    EC2_NAME = "ec2-user"                  // enter your AWS EC2 username
-    PIPELINE_NAME = "CI-PIPELINE"          // enter your pipeline name here 
+    NODE_IP = '172.31.43.47'   // paste your Node-Server private IP here
+    EC2_NAME = "ubuntu"                  // enter your AWS EC2 username
+    PIPELINE_NAME = "PIPELINE-CI"          // enter your pipeline name here 
     PROJECT_NAME = "DevopsProject1"        // enter your Devops project name here
     }
 
@@ -18,19 +18,19 @@ pipeline {
             steps {
               sshagent(['my_ec2_creds']) {         // install 'ssh agent' plugin & generate 'ssh-agent' pipeline syntax generator 
                 sh "ssh -o StrictHostKeyChecking=no ${EC2_NAME}@${NODE_IP}"   // enter your Node Server's private IP here
-                sh "scp /var/lib/jenkins/workspace/${PIPELINE_NAME}/${PROJECT_NAME}/deployment.yaml ${EC2_NAME}@${NODE_IP}:/home/ec2-user/"
-                sh "scp /var/lib/jenkins/workspace/${PIPELINE_NAME}/${PROJECT_NAME}/service.yaml ${EC2_NAME}@${NODE_IP}:/home/ec2-user/"
+                sh "scp /var/lib/jenkins/workspace/${PIPELINE_NAME}/${PROJECT_NAME}/deployment.yaml ${EC2_NAME}@${NODE_IP}:/home/ubuntu/"
+                sh "scp /var/lib/jenkins/workspace/${PIPELINE_NAME}/${PROJECT_NAME}/service.yaml ${EC2_NAME}@${NODE_IP}:/home/ubuntu/"
               }
             }
         }
 
-        stage('2. Approval') {
+      //  stage('2. Approval') {
           // If 'manual approval' is required, then it is called 'Continuous Delivery'
           // If it is totally automated, then it is called 'Continuous Deployment'
-            steps {
-                input message: 'Approve deployment?'
-            }
-        }
+       //     steps {
+          //      input message: 'Approve deployment?'
+        //    }
+     //   }
 
         stage("3. Deployment") {
           // K8s Deployment using Ansible
