@@ -61,8 +61,8 @@ resource "aws_instance" "my_ec2_instance1" {
 
   # Consider EBS volume 30GB
   root_block_device {
-    volume_size = 40    # Volume size 30 GB
-    volume_type = "gp3" # General Purpose SSD
+    volume_size = 30    # Volume size 30 GB
+    volume_type = "gp2" # General Purpose SSD
   }
 
   tags = {
